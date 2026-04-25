@@ -1,36 +1,36 @@
 # TaskFlow — Knowledge Base
 
-## ¿Qué es TaskFlow?
-TaskFlow es un SaaS de gestión de proyectos para equipos remotos.
-Permite crear proyectos, asignar tareas, trackear tiempo y generar reportes.
+## What is TaskFlow?
+TaskFlow is a project-management SaaS built for remote teams.
+It lets you create projects, assign tasks, track time, and generate reports.
 
-## Planes disponibles
-- **Free**: hasta 3 proyectos, 5 miembros, 1GB storage
-- **Pro** ($12/mes): proyectos ilimitados, 20 miembros, 10GB storage
-- **Enterprise** ($49/mes): todo ilimitado, SSO, soporte prioritario
+## Available plans
+- **Free**: up to 3 projects, 5 members, 1 GB storage
+- **Pro** ($12/month): unlimited projects, 20 members, 10 GB storage
+- **Enterprise** ($49/month): everything unlimited, SSO, priority support
 
-## Integraciones disponibles
+## Integrations
 - Slack, GitHub, Jira, Google Drive, Zapier
 
-## Preguntas frecuentes
+## Frequently asked questions
 
-### ¿Cómo cancelo mi suscripción?
-Ve a Settings → Billing → Cancel Subscription. 
-El acceso continúa hasta el fin del período pagado.
+### How do I cancel my subscription?
+Go to Settings → Billing → Cancel Subscription.
+Access continues until the end of the paid period.
 
-### ¿Puedo exportar mis datos?
-Sí. Settings → Data → Export. Formatos: CSV, JSON, PDF.
+### Can I export my data?
+Yes. Settings → Data → Export. Formats: CSV, JSON, PDF.
 
-### ¿Hay límite de tareas por proyecto?
-Free: 100 tareas/proyecto. Pro y Enterprise: ilimitadas.
+### Is there a task limit per project?
+Free: 100 tasks per project. Pro and Enterprise: unlimited.
 
-### ¿Cómo invito miembros a mi equipo?
-Settings → Team → Invite Members. Ingresa el email y selecciona el rol.
+### How do I invite members to my team?
+Settings → Team → Invite Members. Enter the email and pick the role.
 
-### ¿TaskFlow tiene app móvil?
-Sí, disponible en iOS y Android. Descárgala desde la App Store o Google Play.
+### Does TaskFlow have a mobile app?
+Yes, available on iOS and Android. Download it from the App Store or Google Play.
 
-## Soporte
+## Support
 - Email: support@taskflow.io
-- Chat en vivo: disponible en el dashboard (Plan Pro y Enterprise)
-- Documentación: docs.taskflow.io
+- Live chat: available in the dashboard (Pro and Enterprise plans)
+- Documentation: docs.taskflow.io

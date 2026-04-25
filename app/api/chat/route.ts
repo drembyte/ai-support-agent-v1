@@ -5,6 +5,7 @@ import { searchKnowledge } from '@/features/knowledge-base/search'
 import { getTicketsByUser, getTicketById, createTicket } from '@/features/tickets/store'
 import { calculateCost } from '@/shared/lib/cost'
 import { trackUsage } from '@/shared/lib/usage-tracker'
+import { TICKET_PRIORITIES, type TicketPriority } from '@/shared/types/ticket'
 
 export const maxDuration = 30
 
@@ -16,72 +17,74 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: anthropic('claude-haiku-4-5'),
-    system: `Eres un agente de soporte para TaskFlow, un SaaS de gestión de proyectos.
-Tu objetivo es ayudar a los usuarios a resolver sus problemas de forma concisa y empática.
+    system: `You are a support agent for TaskFlow, a project-management SaaS.
+Your goal is to help users resolve their issues concisely and empathetically.
 
-Reglas:
-- Usa SIEMPRE las tools disponibles antes de responder
-- Si el usuario pregunta por sus tickets, usa getTickets
-- Si pregunta por funcionalidades del producto, usa searchKnowledge
-- Si quiere crear un ticket, usa createTicket
-- Responde en el mismo idioma que el usuario
-- Sé conciso — máximo 3 párrafos`,
+Rules:
+- ALWAYS use the available tools before answering.
+- If the user asks about their tickets, use getTickets.
+- If they ask about product features, plans, or integrations, use searchKnowledge.
+- If they want to file a problem you can't resolve directly, use createTicket.
+- Reply in the same language the user wrote in.
+- Be concise — three short paragraphs maximum.`,
     messages: await convertToModelMessages(messages),
     stopWhen: stepCountIs(5),
     tools: {
       searchKnowledge: {
-        description: 'Busca información en la KB de TaskFlow sobre funcionalidades, planes e integraciones.',
+        description: 'Search the TaskFlow knowledge base for product features, plans, and integrations.',
         inputSchema: z.object({
-          query: z.string().describe('El tema a buscar'),
+          query: z.string().describe('The topic to search for'),
         }),
         execute: async ({ query }: { query: string }) => {
           return { result: searchKnowledge(query) }
         },
       },
       getTickets: {
-        description: 'Obtiene los tickets del usuario. Úsala cuando pregunte por el estado de sus reportes.',
+        description: 'Fetch the current user\'s support tickets. Use it when they ask about the status of their reports.',
         inputSchema: z.object({}),
         execute: async () => {
           const tickets = await getTicketsByUser(CURRENT_USER_ID)
           return tickets.length === 0
-            ? { message: 'No tienes tickets abiertos.' }
+            ? { message: 'You have no open tickets.' }
             : { tickets }
         },
       },
       getTicketById: {
-        description: 'Obtiene el detalle de un ticket por su ID, ejemplo TK-001.',
+        description: 'Fetch the details of a single ticket by its ID, e.g. TK-001.',
         inputSchema: z.object({
-          id: z.string().describe('ID del ticket'),
+          id: z.string().describe('Ticket ID'),
         }),
         execute: async ({ id }: { id: string }) => {
           const ticket = await getTicketById(id)
-          return ticket ?? { error: `No encontré el ticket ${id}` }
+          return ticket ?? { error: `Ticket ${id} was not found.` }
         },
       },
       createTicket: {
-        description: 'Crea un nuevo ticket cuando el problema no se puede resolver directamente.',
+        description: 'Create a new support ticket when the issue cannot be resolved directly in chat.',
         inputSchema: z.object({
-          subject: z.string().describe('Título del problema'),
-          description: z.string().describe('Descripción detallada'),
-          priority: z.enum(['low', 'medium', 'high']),
+          subject: z.string().describe('Short title for the issue'),
+          description: z.string().describe('Detailed description of the issue'),
+          priority: z.enum(TICKET_PRIORITIES),
         }),
         execute: async ({ subject, description, priority }: {
           subject: string
           description: string
-          priority: 'low' | 'medium' | 'high'
+          priority: TicketPriority
         }) => {
           const ticket = await createTicket(CURRENT_USER_ID, subject, description, priority)
-          return { success: true, ticketId: ticket.id, message: `Ticket ${ticket.id} creado.` }
+          return { success: true, ticketId: ticket.id, message: `Ticket ${ticket.id} created.` }
         },
       },
     },
   })
 
-  // Fire and forget — no bloquea el stream
+  // Fire-and-forget so the stream is never blocked.
   result.usage.then(usage => {
-    const cost = calculateCost(MODEL, usage.inputTokens, usage.outputTokens)
-    trackUsage(MODEL, usage.inputTokens, usage.outputTokens, cost)
-    console.log(`💰 $${cost.toFixed(8)} | ${usage.inputTokens} in, ${usage.outputTokens} out`)
+    const inputTokens = usage.inputTokens ?? 0
+    const outputTokens = usage.outputTokens ?? 0
+    const cost = calculateCost(MODEL, inputTokens, outputTokens)
+    trackUsage(MODEL, inputTokens, outputTokens, cost)
+    console.log(`$${cost.toFixed(8)} | ${inputTokens} in, ${outputTokens} out`)
   })
 
   return result.toUIMessageStreamResponse()

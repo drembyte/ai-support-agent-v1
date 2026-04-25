@@ -5,7 +5,7 @@ const client = new Anthropic()
 export async function POST(request: Request) {
   const formData = await request.formData()
   const file = formData.get('file') as File
-  const question = formData.get('question') as string ?? 'Describe el problema que ves en este archivo'
+  const question = formData.get('question') as string ?? 'Describe the issue you see in this file.'
 
   if (!file) {
     return Response.json({ error: 'file is required' }, { status: 400 })
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   if (!isImage && !isPdf && !isText) {
     return Response.json(
-      { error: 'Formato no soportado. Usa imagen (jpg, png) o documento (pdf, txt, md)' },
+      { error: 'Unsupported format. Use an image (jpg, png) or a document (pdf, txt, md).' },
       { status: 400 }
     )
   }
@@ -56,12 +56,12 @@ export async function POST(request: Request) {
   const response = await client.messages.create({
     model: 'claude-haiku-4-5',
     max_tokens: 1024,
-    system: `Eres un agente de soporte técnico para TaskFlow.
-Analiza el archivo que te envía el usuario e identifica:
-1. El problema específico que se observa
-2. Posible causa
-3. Pasos recomendados para resolverlo
-Sé conciso y práctico.`,
+    system: `You are a TaskFlow support agent.
+Analyze the file the user has sent and identify:
+1. The specific problem visible in the file.
+2. The most likely cause.
+3. Recommended steps to resolve it.
+Reply in the same language the user wrote in. Be concise and practical.`,
     messages: [
       {
         role: 'user',
