@@ -1,19 +1,4 @@
-export interface Ticket {
-  id: string
-  userId: string
-  subject: string
-  description: string
-  status: 'open' | 'in_progress' | 'resolved' | 'closed'
-  priority: 'low' | 'medium' | 'high'
-  createdAt: Date
-  updatedAt: Date
-}
-
-// Misma técnica que task-manager-ai — globalThis para HMR
-interface TicketStore {
-  tickets: Ticket[]
-  nextId: number
-}
+import type { Ticket, TicketPriority, TicketStore } from '@/shared/types/ticket'
 
 const globalRef = globalThis as unknown as { __ticketStore?: TicketStore }
 
@@ -22,8 +7,8 @@ const store: TicketStore = (globalRef.__ticketStore ??= {
     {
       id: 'TK-001',
       userId: 'user_123',
-      subject: 'No puedo exportar mis datos',
-      description: 'Al intentar exportar en CSV el archivo sale vacío',
+      subject: 'Cannot export my data',
+      description: 'When I try to export to CSV the file comes out empty.',
       status: 'open',
       priority: 'high',
       createdAt: new Date('2026-04-20'),
@@ -32,8 +17,8 @@ const store: TicketStore = (globalRef.__ticketStore ??= {
     {
       id: 'TK-002',
       userId: 'user_123',
-      subject: 'Integración con Slack no funciona',
-      description: 'Las notificaciones no llegan al canal configurado',
+      subject: 'Slack integration not working',
+      description: 'Notifications are not arriving in the configured channel.',
       status: 'in_progress',
       priority: 'medium',
       createdAt: new Date('2026-04-21'),
@@ -55,7 +40,7 @@ export async function createTicket(
   userId: string,
   subject: string,
   description: string,
-  priority: Ticket['priority'] = 'medium'
+  priority: TicketPriority = 'medium'
 ): Promise<Ticket> {
   const ticket: Ticket = {
     id: `TK-00${store.nextId++}`,

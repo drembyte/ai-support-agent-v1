@@ -1,4 +1,6 @@
-export const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+import type { ModelPricing } from '@/shared/types/usage'
+
+export const MODEL_PRICING: Record<string, ModelPricing> = {
   'claude-haiku-4-5-20251001': { input: 0.80, output: 2.40 },
   'claude-sonnet-4-5-20251001': { input: 3.00, output: 15.00 },
 }

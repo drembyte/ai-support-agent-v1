@@ -1,15 +1,4 @@
-interface UsageRecord {
-  timestamp: Date
-  model: string
-  inputTokens: number
-  outputTokens: number
-  costUsd: number
-}
-
-interface UsageStore {
-  records: UsageRecord[]
-  totalCostUsd: number
-}
+import type { UsageStore, UsageSummary } from '@/shared/types/usage'
 
 const globalRef = globalThis as unknown as { __usageStore?: UsageStore }
 
@@ -34,7 +23,7 @@ export function trackUsage(
   store.totalCostUsd += costUsd
 }
 
-export function getUsageSummary() {
+export function getUsageSummary(): UsageSummary {
   return {
     totalRecords: store.records.length,
     totalInputTokens: store.records.reduce((acc, r) => acc + r.inputTokens, 0),
