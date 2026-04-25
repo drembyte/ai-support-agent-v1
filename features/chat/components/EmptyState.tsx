@@ -22,7 +22,7 @@ export default function EmptyState({ onPick }: EmptyStateProps) {
           <button
             key={suggestion}
             onClick={() => onPick(suggestion)}
-            className="text-xs px-3 py-1.5 bg-white border border-gray-300 rounded-full text-gray-700 hover:border-orange-400 hover:text-orange-600 transition-colors"
+            className="cursor-pointer text-xs px-3 py-1.5 bg-white border border-gray-300 rounded-full text-gray-700 hover:border-orange-400 hover:text-orange-600 transition-colors"
           >
             {suggestion}
           </button>

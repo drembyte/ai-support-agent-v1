@@ -39,28 +39,31 @@ The Vercel AI SDK is the right tool for streaming chat and the agent loop — it
 
 ## Architecture
 
-```
-           ┌─────────────────────────────────┐
-  Client ──►  app/chat (client component)   ──► useChat (Vercel AI SDK)
-           │  features/chat/components/*    │
-           └────────────────┬────────────────┘
-                            │ stream / fetch
-                            ▼
-                   Route handlers (app/api/*)
-                            │
-              ┌─────────────┴──────────────┐
-              ▼                            ▼
-   Vercel AI SDK (streamText,     Anthropic SDK direct
-   tools, stepCountIs)             (messages.create
-              │                     with image / document)
-              ▼                            │
-        Anthropic API ◄────────────────────┘
-              │
-              ▼
-   In-memory stores: tickets · usage · KB markdown
+```mermaid
+flowchart TD
+    Browser["Browser<br/><sub>app/chat · features/chat/components/*</sub>"]
+    Routes["Route handlers<br/><sub>app/api/chat · app/api/analyze · app/api/usage</sub>"]
+    Vercel["Vercel AI SDK<br/><sub>streamText · tools · stepCountIs(5)</sub>"]
+    Anthropic["Anthropic SDK<br/><sub>messages.create · image + document</sub>"]
+    API["Anthropic API<br/><sub>Claude Haiku 4.5</sub>"]
+    Stores["In-memory stores<br/><sub>tickets · usage · KB markdown</sub>"]
+
+    Browser -->|stream / fetch| Routes
+    Routes --> Vercel
+    Routes --> Anthropic
+    Vercel --> API
+    Anthropic --> API
+    Routes -.reads / writes.-> Stores
+
+    classDef accent fill:#fff7ed,stroke:#fb923c,color:#7c2d12;
+    classDef strong fill:#111827,stroke:#111827,color:#ffffff;
+    classDef muted  fill:#f9fafb,stroke:#e5e7eb,color:#4b5563;
+    class Vercel,Anthropic accent;
+    class API strong;
+    class Stores muted;
 ```
 
-State lives in `globalThis`-backed in-memory stores — fine for a portfolio demo, swappable for Postgres in the roadmap below.
+State lives in `globalThis`-backed in-memory stores — fine for a portfolio demo, easy to swap for Postgres later.
 
 ---
 
@@ -131,15 +134,6 @@ Routes under `app/` are thin wrappers; feature logic lives under `features/<name
 | Name | Required | Purpose |
 | --- | --- | --- |
 | `ANTHROPIC_API_KEY` | ✅ | Used by the Vercel AI SDK chat route and the direct Anthropic SDK file-analysis route |
-
----
-
-## Roadmap
-
-- [ ] Replace the in-memory ticket store with Supabase
-- [ ] Replace keyword search with RAG (pgvector + embeddings)
-- [ ] Per-user authentication and per-user cost tracking
-- [ ] Extended Thinking for harder diagnoses
 
 ---
 

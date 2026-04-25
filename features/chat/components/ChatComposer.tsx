@@ -42,7 +42,7 @@ export default function ChatComposer({
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="px-3 py-2.5 border border-gray-200 rounded-xl text-gray-400 hover:text-orange-600 hover:border-orange-400 transition-colors"
+          className="cursor-pointer px-3 py-2.5 border border-gray-200 rounded-xl text-gray-400 hover:text-orange-600 hover:border-orange-400 transition-colors"
         >
           📎
         </button>
@@ -57,7 +57,7 @@ export default function ChatComposer({
         <button
           type="submit"
           disabled={(!input.trim() && !hasFile) || isLoading}
-          className="px-4 py-2.5 bg-orange-600 text-white rounded-xl text-sm font-medium hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="cursor-pointer px-4 py-2.5 bg-orange-600 text-white rounded-xl text-sm font-medium hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isAnalyzing ? '…' : 'Send'}
         </button>

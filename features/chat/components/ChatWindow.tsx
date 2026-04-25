@@ -68,7 +68,7 @@ export default function ChatWindow() {
   }
 
   return (
-    <div className="flex flex-col h-screen max-w-2xl mx-auto bg-white">
+    <div className="flex flex-col h-screen w-full max-w-2xl mx-auto bg-white">
       <ChatHeader hasMessages={messages.length > 0} onReset={() => setMessages([])} />
       <MessageList
         messages={messages}

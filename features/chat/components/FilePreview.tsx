@@ -13,7 +13,7 @@ export default function FilePreview({ file, onClear }: FilePreviewProps) {
       </p>
       <button
         onClick={onClear}
-        className="text-xs text-orange-400 hover:text-orange-600"
+        className="cursor-pointer text-xs text-orange-400 hover:text-orange-600"
       >
         ✕
       </button>
