@@ -3,10 +3,13 @@ import { anthropic } from '@ai-sdk/anthropic'
 import { z } from 'zod'
 import { searchKnowledge } from '@/features/knowledge-base/search'
 import { getTicketsByUser, getTicketById, createTicket } from '@/features/tickets/store'
+import { calculateCost } from '@/shared/lib/cost'
+import { trackUsage } from '@/shared/lib/usage-tracker'
 
 export const maxDuration = 30
 
 const CURRENT_USER_ID = 'user_123'
+const MODEL = 'claude-haiku-4-5-20251001'
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json()
@@ -72,6 +75,13 @@ Reglas:
         },
       },
     },
+  })
+
+  // Fire and forget — no bloquea el stream
+  result.usage.then(usage => {
+    const cost = calculateCost(MODEL, usage.inputTokens, usage.outputTokens)
+    trackUsage(MODEL, usage.inputTokens, usage.outputTokens, cost)
+    console.log(`💰 $${cost.toFixed(8)} | ${usage.inputTokens} in, ${usage.outputTokens} out`)
   })
 
   return result.toUIMessageStreamResponse()
