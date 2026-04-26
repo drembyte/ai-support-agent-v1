@@ -1,39 +1,37 @@
 # TaskFlow AI Support Agent
 
-A production-style customer support agent that showcases the patterns I reach for when shipping LLM features: streaming chat, tool-calling agents, file analysis with vision models, and per-turn cost tracking.
+> Streaming support agent with tool calling, vision, and per-turn cost tracking.
 
-Built on Next.js 16 (App Router) with the Vercel AI SDK v6, the Anthropic SDK, and Tailwind v4.
+🔗 **[Live demo](https://ai-support-agent-v1-staging.up.railway.app/)** · 📂 **[Portfolio](https://julianlopez.dev)** · 💻 **[Source on GitHub](https://github.com/stivenslop2/ai-support-agent-v1)**
 
-> **Portfolio project** — Julian Lopez · AI Engineer
+---
+
+## The problem it solves
+
+Customer support teams need to triage tickets, answer product questions from a knowledge base, and inspect screenshots and PDFs that users attach — without making the agent feel slow or opaque. This project is a production-style support assistant for a fictional SaaS ("TaskFlow") that streams answers token-by-token, takes real actions through tools (search KB, list/read/create tickets), and accepts image and PDF attachments alongside chat. It exists as a portfolio reference for the patterns I reach for when shipping an LLM feature end-to-end.
 
 ---
 
 ## AI techniques demonstrated
 
-| Technique | What it does here | Where to look |
-| --- | --- | --- |
-| **Streaming chat** | Token-by-token responses over Server-Sent Events. The chat route returns a UI-message stream consumed by `useChat`. | `app/api/chat/route.ts`, `features/chat/components/ChatWindow.tsx` |
-| **Tool calling (agentic loop)** | Multi-step assistant that searches the knowledge base, lists and reads tickets, and creates new ones. `stepCountIs(5)` caps the agent loop. | `app/api/chat/route.ts` |
-| **File analysis** | Image and PDF attachments routed through the Anthropic SDK directly. The analysis lands as an assistant message in the same conversation. | `app/api/analyze/route.ts`, `features/chat/components/ChatWindow.tsx` |
-| **Cost & usage tracking** | Every chat turn records token usage and USD cost via a fire-and-forget `result.usage.then(…)` so the stream is never blocked. | `shared/lib/cost.ts`, `shared/lib/usage-tracker.ts`, `app/api/usage/route.ts` |
+| Technique | Implementation | Where to look |
+|-----------|----------------|---------------|
+| Streaming chat | UI-message stream over SSE via `streamText`, consumed by `useChat` on the client | `app/api/chat/route.ts`, `features/chat/components/ChatWindow.tsx` |
+| Tool calling (agentic loop) | Multi-step agent with KB search and ticket CRUD tools, capped by `stepCountIs(5)` | `app/api/chat/route.ts`, `features/knowledge-base/search.ts`, `features/tickets/store.ts` |
+| File analysis (vision + PDF) | Image and PDF attachments routed through the Anthropic SDK directly using `image` and `document` content blocks | `app/api/analyze/route.ts`, `shared/lib/anthropic.ts` |
+| Cost & usage tracking | Fire-and-forget `result.usage.then(...)` records token counts and USD per turn without blocking the stream | `shared/lib/cost.ts`, `shared/lib/usage-tracker.ts`, `app/api/usage/route.ts` |
 
 ---
 
 ## Stack
 
-| Area | Choice |
-| --- | --- |
-| Framework | **Next.js 16** (App Router, Turbopack, Route Handlers, Server Components) |
-| Runtime | React 19, TypeScript 5 |
-| AI — streaming & tools | Vercel AI SDK `ai` v6 + `@ai-sdk/anthropic` + `@ai-sdk/react` |
-| AI — file analysis | `@anthropic-ai/sdk` used directly |
-| Model | Claude Haiku 4.5 |
-| Styling | Tailwind CSS 4 |
-| Tooling | ESLint 9 |
-
-### Why two SDKs?
-
-The Vercel AI SDK is the right tool for streaming chat and the agent loop — it abstracts the SSE protocol, drives multi-step tool execution, and integrates with `useChat` on the client. The Anthropic SDK is used directly for file uploads, where the lower-level `messages.create` surface with `image` and `document` content blocks is more convenient than going through the AI SDK wrapper.
+- **Framework:** Next.js 16 (App Router, Turbopack, Route Handlers)
+- **Runtime:** React 19, TypeScript 5
+- **AI — streaming & tools:** Vercel AI SDK v6 (`ai`, `@ai-sdk/anthropic`, `@ai-sdk/react`)
+- **AI — file analysis:** `@anthropic-ai/sdk` used directly
+- **Model:** Claude Haiku 4.5
+- **Persistence:** In-memory stores (tickets, usage, KB markdown) — `globalThis`-backed for portfolio scope
+- **Styling:** Tailwind CSS 4
 
 ---
 
@@ -41,12 +39,12 @@ The Vercel AI SDK is the right tool for streaming chat and the agent loop — it
 
 ```mermaid
 flowchart TD
-    Browser["Browser<br/><sub>app/chat · features/chat/components/*</sub>"]
-    Routes["Route handlers<br/><sub>app/api/chat · app/api/analyze · app/api/usage</sub>"]
+    Browser["Browser UI<br/><sub>app/chat · features/chat/components</sub>"]
+    Routes["Route handlers<br/><sub>app/api/chat · /analyze · /usage</sub>"]
     Vercel["Vercel AI SDK<br/><sub>streamText · tools · stepCountIs(5)</sub>"]
-    Anthropic["Anthropic SDK<br/><sub>messages.create · image + document</sub>"]
+    Anthropic["Anthropic SDK direct<br/><sub>messages.create · image + document</sub>"]
     API["Anthropic API<br/><sub>Claude Haiku 4.5</sub>"]
-    Stores["In-memory stores<br/><sub>tickets · usage · KB markdown</sub>"]
+    Stores["In-memory stores<br/><sub>tickets · usage · KB</sub>"]
 
     Browser -->|stream / fetch| Routes
     Routes --> Vercel
@@ -57,86 +55,62 @@ flowchart TD
 
     classDef accent fill:#fff7ed,stroke:#fb923c,color:#7c2d12;
     classDef strong fill:#111827,stroke:#111827,color:#ffffff;
-    classDef muted  fill:#f9fafb,stroke:#e5e7eb,color:#4b5563;
     class Vercel,Anthropic accent;
     class API strong;
-    class Stores muted;
 ```
 
-State lives in `globalThis`-backed in-memory stores — fine for a portfolio demo, easy to swap for Postgres later.
+- **Dual-SDK by design.** The Vercel AI SDK owns the chat route — it abstracts SSE, drives the multi-step tool loop, and integrates with `useChat`. The Anthropic SDK is called directly from the analyze route, where `image` and `document` content blocks are first-class.
+- **Folder boundaries are enforced.** `app/` is routing only; feature logic lives in `features/<name>/`; cross-feature primitives (clients, pricing, types) live in `shared/`. Route handlers never import other route handlers.
+- **Types are centralized.** Domain types live in `shared/types/<domain>.ts` (`ticket.ts`, `usage.ts`, `chat.ts`) so feature files import rather than redeclare them.
+- **Stateless by default.** All persistence is in-memory and intentionally swappable — the store interfaces (`TicketStore`, `UsageStore`) make a Postgres or Supabase implementation a drop-in.
 
 ---
 
-## Setup
+## Notable engineering decisions
+
+### Two SDKs by design
+
+The Vercel AI SDK is the right abstraction for streaming chat and the agent loop: it speaks the SSE UI-message protocol, runs the multi-step tool execution, and pairs cleanly with `useChat`. For file analysis the lower-level `@anthropic-ai/sdk` is more honest — `messages.create` with `image` and `document` content blocks needs none of the wrapper indirection, and the analysis lands as a regular assistant message in the same conversation. Mixing both inside one route handler is explicitly disallowed (`AGENTS.md`); each route picks one SDK and stays with it.
+
+### Fire-and-forget cost tracking
+
+Cost recording must not delay the first token to the user. The chat route awaits `result.usage` inside a detached `.then(...)` that runs after the stream resolves, then writes a `UsageRecord` via `recordUsage()` in `shared/lib/usage-tracker.ts`. The stream is never blocked by pricing math, and `app/api/usage/route.ts` exposes the aggregated summary on demand.
+
+### In-memory store as a deliberate scope choice
+
+Tickets, usage, and the KB live in `globalThis`-backed in-memory stores rather than Postgres. For a portfolio demo this keeps setup to one env var and removes every moving part that doesn't teach an AI pattern. The store interfaces in `shared/types/` are written so a Supabase backend slots in without touching the route handlers.
+
+---
+
+## Run locally
 
 ```bash
 git clone https://github.com/stivenslop2/ai-support-agent-v1
 cd ai-support-agent-v1
 npm install
-cp .env.example .env.local
-# Fill in ANTHROPIC_API_KEY
+cp .env.example .env.local  # fill in ANTHROPIC_API_KEY
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Open <http://localhost:3000>.
+
+Required environment variables:
+
+- `ANTHROPIC_API_KEY` — used by both the Vercel AI SDK chat route and the direct Anthropic SDK file-analysis route
 
 ---
 
-## Scripts
+## What's next
 
-| Script | Description |
-| --- | --- |
-| `npm run dev` | Start the dev server |
-| `npm run build` | Production build |
-| `npm start` | Run the production build |
-| `npm run lint` | Lint the project |
+- [ ] Replace the in-memory tickets/usage stores with a Supabase Postgres backend behind the existing store interfaces
+- [ ] Add authentication so tickets are scoped per user instead of shared across the demo
+- [ ] Wire LLM observability (Langfuse or similar) for trace-level inspection of tool calls and prompt caching hit rate
 
 ---
 
-## Project layout
+## About
 
-```
-app/
-  layout.tsx, globals.css
-  page.tsx                          # Home — portfolio showcase
-  chat/page.tsx                     # Chat UI mount
-  api/
-    chat/route.ts                   # POST — streaming agent (Vercel AI SDK)
-    analyze/route.ts                # POST — file analysis (Anthropic SDK)
-    usage/route.ts                  # GET  — token usage and cost summary
+Built by **Julian Lopez** — AI Engineer · Full Stack.
+[Portfolio](https://julianlopez.dev) · [LinkedIn](https://www.linkedin.com/in/stiven-julian-lopez/) · [GitHub](https://github.com/stivenslop2)
 
-features/
-  chat/
-    components/                     # ChatWindow + focused presentational pieces
-  knowledge-base/
-    search.ts                       # Keyword search over product KB
-    data/product.md                 # KB content the agent quotes back
-  tickets/
-    store.ts                        # In-memory ticket store
-
-shared/
-  lib/
-    anthropic.ts                    # Anthropic SDK client
-    cost.ts                         # Per-model pricing and cost calculator
-    usage-tracker.ts                # In-memory usage records
-  types/
-    ticket.ts                       # Ticket, TicketPriority, TicketStatus, TicketStore
-    usage.ts                        # UsageRecord, UsageStore, UsageSummary, ModelPricing
-    chat.ts                         # ChatMessage type alias
-```
-
-Routes under `app/` are thin wrappers; feature logic lives under `features/<name>/` and shared primitives under `shared/`.
-
----
-
-## Environment variables
-
-| Name | Required | Purpose |
-| --- | --- | --- |
-| `ANTHROPIC_API_KEY` | ✅ | Used by the Vercel AI SDK chat route and the direct Anthropic SDK file-analysis route |
-
----
-
-## License
-
-MIT
+License: MIT
