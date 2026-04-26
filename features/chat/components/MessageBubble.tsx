@@ -2,6 +2,7 @@
 
 import type { ChatMessage } from '@/shared/types/chat'
 import ToolCallIndicator from './ToolCallIndicator'
+import MarkdownMessage from './MarkdownMessage'
 
 interface MessageBubbleProps {
   message: ChatMessage
@@ -21,11 +22,14 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
       >
         {message.parts.map((part, i) => {
           if (part.type === 'text') {
-            return (
-              <p key={i} className="whitespace-pre-wrap leading-relaxed">
-                {part.text}
-              </p>
-            )
+            if (isUser) {
+              return (
+                <p key={i} className="whitespace-pre-wrap leading-relaxed">
+                  {part.text}
+                </p>
+              )
+            }
+            return <MarkdownMessage key={i} text={part.text} />
           }
 
           if (part.type.startsWith('tool-') && 'state' in part) {
