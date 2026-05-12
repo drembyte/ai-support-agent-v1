@@ -14,7 +14,7 @@ export function LandingFooter() {
           </a>
           <span aria-hidden className="text-gray-400">&middot;</span>
           <a
-            href="https://www.linkedin.com/in/stiven-julian-lopez/"
+            href="https://www.linkedin.com/in/jstivenslopez/"
             target="_blank"
             rel="noreferrer"
             className="hover:text-orange-600 transition-colors"

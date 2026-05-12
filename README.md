@@ -111,6 +111,6 @@ Required environment variables:
 ## About
 
 Built by **Julian Lopez** — AI Engineer · Full Stack.
-[Portfolio](https://julianlopez.dev) · [LinkedIn](https://www.linkedin.com/in/stiven-julian-lopez/) · [GitHub](https://github.com/stivenslop2)
+[Portfolio](https://julianlopez.dev) · [LinkedIn](https://www.linkedin.com/in/jstivenslopez/) · [GitHub](https://github.com/stivenslop2)
 
 License: MIT
