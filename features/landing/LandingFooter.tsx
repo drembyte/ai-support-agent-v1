@@ -7,7 +7,7 @@ export function LandingFooter() {
         </p>
         <nav className="flex flex-wrap gap-x-4 gap-y-2 text-gray-600">
           <a
-            href="https://stivenslop-staging.up.railway.app"
+            href="https://stivenslop.up.railway.app"
             className="hover:text-orange-600 transition-colors"
           >
             Portfolio
