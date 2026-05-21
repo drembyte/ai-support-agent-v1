@@ -2,7 +2,7 @@
 
 > Streaming support agent with tool calling, vision, and per-turn cost tracking.
 
-🔗 **[Live demo](https://ai-support-agent-v1-staging.up.railway.app/)** · 📂 **[Portfolio](https://stivenslop-staging.up.railway.app)** · 💻 **[Source on GitHub](https://github.com/stivenslop2/ai-support-agent-v1)**
+🔗 **[Live demo](https://ai-support-agent.up.railway.app/)** · 📂 **[Portfolio](https://stivenslop-staging.up.railway.app)** · 💻 **[Source on GitHub](https://github.com/stivenslop2/ai-support-agent-v1)**
 
 ---
 
