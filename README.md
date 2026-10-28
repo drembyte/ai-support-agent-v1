@@ -2,13 +2,13 @@
 
 > Streaming support agent with tool calling, vision, and per-turn cost tracking.
 
-🔗 **[Live demo](https://ai-support-agent.up.railway.app/)** · 📂 **[Portfolio](https://stivenslop.up.railway.app)** · 💻 **[Source on GitHub](https://github.com/stivenslop2/ai-support-agent-v1)**
+🏢 **Built by [Drembyte](https://drembyte.com)** — production AI engineering for US startups and SaaS teams · 💻 **[Source on GitHub](https://github.com/drembyte/ai-support-agent-v1)**
 
 ---
 
 ## The problem it solves
 
-Customer support teams need to triage tickets, answer product questions from a knowledge base, and inspect screenshots and PDFs that users attach — without making the agent feel slow or opaque. This project is a production-style support assistant for a fictional SaaS ("TaskFlow") that streams answers token-by-token, takes real actions through tools (search KB, list/read/create tickets), and accepts image and PDF attachments alongside chat. It exists as a portfolio reference for the patterns I reach for when shipping an LLM feature end-to-end.
+Customer support teams need to triage tickets, answer product questions from a knowledge base, and inspect screenshots and PDFs that users attach — without making the agent feel slow or opaque. This project is a production-style support assistant for a fictional SaaS ("TaskFlow") that streams answers token-by-token, takes real actions through tools (search KB, list/read/create tickets), and accepts image and PDF attachments alongside chat. It is a public reference build of the patterns we use when shipping an LLM feature end-to-end for clients.
 
 ---
 
@@ -30,7 +30,7 @@ Customer support teams need to triage tickets, answer product questions from a k
 - **AI — streaming & tools:** Vercel AI SDK v6 (`ai`, `@ai-sdk/anthropic`, `@ai-sdk/react`)
 - **AI — file analysis:** `@anthropic-ai/sdk` used directly
 - **Model:** Claude Haiku 4.5
-- **Persistence:** In-memory stores (tickets, usage, KB markdown) — `globalThis`-backed for portfolio scope
+- **Persistence:** In-memory stores (tickets, usage, KB markdown) — `globalThis`-backed for reference-build scope
 - **Styling:** Tailwind CSS 4
 
 ---
@@ -78,14 +78,14 @@ Cost recording must not delay the first token to the user. The chat route awaits
 
 ### In-memory store as a deliberate scope choice
 
-Tickets, usage, and the KB live in `globalThis`-backed in-memory stores rather than Postgres. For a portfolio demo this keeps setup to one env var and removes every moving part that doesn't teach an AI pattern. The store interfaces in `shared/types/` are written so a Supabase backend slots in without touching the route handlers.
+Tickets, usage, and the KB live in `globalThis`-backed in-memory stores rather than Postgres. For a reference build this keeps setup to one env var and removes every moving part that doesn't teach an AI pattern. The store interfaces in `shared/types/` are written so a Supabase backend slots in without touching the route handlers.
 
 ---
 
 ## Run locally
 
 ```bash
-git clone https://github.com/stivenslop2/ai-support-agent-v1
+git clone https://github.com/drembyte/ai-support-agent-v1
 cd ai-support-agent-v1
 npm install
 cp .env.example .env.local  # fill in ANTHROPIC_API_KEY
@@ -111,6 +111,6 @@ Required environment variables:
 ## About
 
 Built by **Julian Lopez** — AI Engineer · Full Stack.
-[Portfolio](https://stivenslop.up.railway.app) · [LinkedIn](https://www.linkedin.com/in/jstivenslopez/) · [GitHub](https://github.com/stivenslop2)
+Built by [Drembyte](https://drembyte.com) · Need something like this in your product? [Book a free 30-min call](https://cal.com/drembyte/discovery-call?utm_source=github&utm_medium=readme&utm_campaign=ai_support_agent)
 
 License: MIT
